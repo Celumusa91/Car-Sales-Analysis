@@ -1,0 +1,182 @@
+---
+title: "Sales Data Analysis Report"
+author: "Celumusa Fakudze"
+date: "2024-05-12"
+output: html_document
+---
+
+## Data Importing into R-studio Environment
+The Auto Sales Data was downloaded from the Kaggle website.
+
+```{r}
+library(readr)
+Auto_Sales_data <- read_csv("C:/Users/Fakudze/Desktop/Auto Sales data.csv")
+View(Auto_Sales_data)
+```
+
+## Loading Libraries for data pre-procesing and analysis
+
+```{r}
+library(rmarkdown)
+library(tidyverse)
+library(dplyr)
+library(ggplot2)
+library(summarytools)
+library(lubridate)
+```
+
+## **Data Cleaning and Sampling**
+
+## Checking if there are any missing values in the dataset
+
+```{r}
+sum(is.na(Auto_Sales_data))
+```
+
+## Data Sampling
+Notes: Variables such as the ORDERNUMBER, QUANTITYORDERED, PRICEEACH, ORDERDATE, PRODUCTCODE, PRODUCTLINE, STATUS, CUSTOMERNAME, CITY, COUNTRY, DEALSIZE and SALES are selected for the analysis.The new data sample **data** is produced.
+
+```{r}
+data <- Auto_Sales_data %>% 
+           select(ORDERNUMBER, QUANTITYORDERED, PRICEEACH, ORDERDATE, PRODUCTCODE, PRODUCTLINE, STATUS,
+                  CUSTOMERNAME, CITY, COUNTRY, DEALSIZE, SALES)
+```
+
+## Examining data types types
+Checking the data types of the variables
+
+```{r}
+str(data)
+```
+
+## Transforming the ORDERDATE variable from character to date format
+
+
+```{r}
+data$new_date <- dmy(data$ORDERDATE)
+```
+
+
+## Data modelling
+Create the year, day_of_month, month and weekdays variables
+
+
+```{r}
+x <- as.Date(data$new_date)
+year <- as.factor(format(x, "%Y"))
+day_of_month <- as.numeric(format(x, "%d"))
+month <- lubridate::month(data$new_date, label = T, abbr = F,)
+weekdays <- lubridate::wday(data$new_date, label = T, abbr = F)
+```
+
+
+## Creating new dataset using the cbind fuction with the year, day_of_month, month and weekdays variables 
+The new dataset is called **data_new**
+
+
+```{r}
+data_new <- cbind(data, year, month,weekdays, day_of_month)
+View(data_new)
+```
+
+
+## Removing the old date column ORDERDATE from the new dataset
+
+
+```{r}
+data_new <- data_new %>% 
+           select(-ORDERDATE)
+```
+
+
+## Transforming PRODUCTLINE, STATUS, DEALSIZE into factor variables
+
+
+```{r}
+data_new$PRODUCTLINE <- as.factor(data_new$PRODUCTLINE)
+data_new$STATUS <- as.factor(data_new$STATUS)
+data_new$DEALSIZE <- as.factor(data_new$DEALSIZE)
+str(data_new)
+```
+
+## **Exploratory Data Analysis**
+Examining the the measures of central tendency and sales perfomancies across categorical variables
+
+
+## Calculating descriptive statistics for numeric variables to see their distribution
+
+
+```{r}
+numerics <- data_new %>% 
+           select(SALES, QUANTITYORDERED, PRICEEACH)
+
+numerics %>% 
+           descr(order = "preserve",
+                 stats = c("mean", "sd", "min", "q1", "med",
+                           "q3", "max"),
+                 round.digits = 3)
+```
+
+
+### SALES trends on categorical variables
+
+
+```{r}
+categorical_features <- data_new %>% 
+           select(STATUS, DEALSIZE, PRODUCTLINE, COUNTRY,
+                  DEALSIZE, SALES)
+
+cat_long_features <- categorical_features %>%
+           pivot_longer(!SALES, names_to = "features", values_to = "values") %>% 
+           group_by(features) %>% 
+           mutate(values = factor(values))
+
+cat_long_features %>% 
+           ggplot()+
+           geom_bar(aes(x = values, fill = features), alpha = 0.7,
+                    show.legend = F)+
+           facet_wrap(~features, scales = 'free')+
+           paletteer::scale_fill_paletteer_d("ggthemr::solarized")+
+           theme(panel.grid = element_blank(),
+                 axis.text.x = element_text(angle = 90))
+```
+
+
+## Time Series analysis
+
+### Sales trend by days of a week
+
+
+```{r}
+data_new %>% 
+           ggplot(aes(weekdays, SALES))+
+           geom_boxplot(color = "red")
+
+```
+
+
+### Sales trend by month of year
+
+
+```{r}
+data_new %>% 
+           ggplot(aes(x = month,  y = SALES))+
+           geom_boxplot(color = "blue")
+```
+
+### Sales trnd by day of month
+
+
+```{r}
+plot(data_new$SALES, xlab = "Day of the month", ylab = "Sales", lwd = 2, type = "l", xlim = c(1, 31), ylim = c(500, 15000), main = "Sales Gragh by days of the month")
+```
+
+## Customername with highest sales
+
+
+```{r}
+data_new %>% 
+           select(CUSTOMERNAME, SALES, CITY, COUNTRY, ) %>% 
+           group_by(CUSTOMERNAME) %>% 
+           arrange(desc(SALES))
+```
