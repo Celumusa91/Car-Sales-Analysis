@@ -53,3 +53,6 @@ Exploratory data analysis involved exploring the sales data to answer questions 
 Based on the analysis, we recomend the following actions;
 - Focus on expanding and promoting cars large deals and the sales of trains.
 - Implement effective advertising strategies to improve sales on low sales countries such as the Ireland.
+
+
+see report (https://github.com/Celumusa91/Car-Sales-Analysis/blob/main/Sales%20Data%20Analysis.Rmd)
