@@ -55,4 +55,6 @@ Based on the analysis, we recomend the following actions;
 - Implement effective advertising strategies to improve sales on low sales countries such as the Ireland.
 
 
-see report (https://github.com/Celumusa91/Car-Sales-Analysis/blob/main/Sales%20Data%20Analysis.Rmd)
+See R-code (https://github.com/Celumusa91/Car-Sales-Analysis/blob/main/Sales%20Data%20Analysis.Rmd)
+
+See R-report (https://raw.githack.com/Celumusa91/Car-Sales-Analysis/main/Sales-Data-Analysis.html)
